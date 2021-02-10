@@ -1,0 +1,39 @@
+{
+  "name": "telepath-unpack",
+  "version": "0.0.1",
+  "description": "Unpack values that have been packed with telepath",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wagtail/telepath-unpack.git"
+  },
+  "keywords": [
+    "json",
+    "serialization"
+  ],
+  "author": "Matt Westcott",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/wagtail/telepath-unpack/issues"
+  },
+  "homepage": "https://github.com/wagtail/telepath-unpack#readme",
+  "devDependencies": {
+    "@babel/core": "^7.12.13",
+    "@babel/preset-env": "^7.12.13",
+    "babel-jest": "^26.6.3",
+    "jest": "^26.6.3"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    }
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ]
+  }
+}
