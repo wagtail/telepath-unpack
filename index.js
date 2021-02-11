@@ -134,4 +134,4 @@ class Telepath {
   }
 }
 
-export default Telepath;
+module.exports = Telepath;

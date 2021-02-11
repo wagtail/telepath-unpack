@@ -1,6 +1,6 @@
 /* eslint-disable dot-notation */
 
-import Telepath from './index';
+const Telepath = require('./index');
 
 const telepath = new Telepath();
 
