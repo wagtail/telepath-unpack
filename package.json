@@ -21,19 +21,7 @@
   },
   "homepage": "https://github.com/wagtail/telepath-unpack#readme",
   "devDependencies": {
-    "@babel/core": "^7.12.13",
-    "@babel/preset-env": "^7.12.13",
-    "babel-jest": "^26.6.3",
     "jest": "^26.6.3"
   },
-  "jest": {
-    "transform": {
-      "^.+\\.js$": "babel-jest"
-    }
-  },
-  "babel": {
-    "presets": [
-      "@babel/preset-env"
-    ]
-  }
+  "dependencies": {}
 }
