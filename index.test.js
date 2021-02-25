@@ -104,6 +104,34 @@ describe('Telepath', () => {
     expect(discography[1].artists[1].name).toBe('Jay-Z');
   });
 
+  it('can expand forward object references', () => {
+    const discography = telepath.unpack([
+      {
+        _type: 'music.Album',
+        _args: [
+          'Dangerously in Love',
+          [
+            { _ref: 0 },
+          ]
+        ]
+      },
+      {
+        _type: 'music.Album',
+        _args: [
+          'Everything Is Love',
+          [
+            { _type: 'music.Artist', _args: ['Beyoncé'], _id: 0 },
+            { _type: 'music.Artist', _args: ['Jay-Z'] },
+          ]
+        ]
+      },
+    ]);
+    expect(discography[0].artists[0].name).toBe('Beyoncé');
+    expect(discography[1].artists[0]).toBeInstanceOf(Artist);
+    expect(discography[1].artists[0].name).toBe('Beyoncé');
+    expect(discography[1].artists[1].name).toBe('Jay-Z');
+  });
+
   it('can expand list references', () => {
     const discography = telepath.unpack([
       {
