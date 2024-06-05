@@ -22,7 +22,7 @@
     "serialization"
   ],
   "author": "Matt Westcott",
-  "license": "BSD-3-Clause",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/wagtail/telepath-unpack/issues"
   },
