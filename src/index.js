@@ -112,6 +112,9 @@ class Telepath {
       /* handle as a custom type */
       const constructorId = objData['_type'];
       const constructor = this.constructors[constructorId];
+      if (typeof constructor !== 'function') {
+        throw new Error(`telepath encountered unknown object type ${constructorId}`);
+      }
       /* unpack arguments recursively */
       const args = objData['_args'].map(arg => this.unpackWithRefs(arg, packedValuesById, valuesById));
       result = new constructor(...args);

@@ -190,4 +190,14 @@ describe('Telepath', () => {
     expect(discography[1].title).toBe('Beyoncé');
     expect(discography[1].artists[0].name).toBe('Beyoncé');
   });
+
+  it('fails to unpack unknown type', () => {
+    expect(() => telepath.unpack([
+        {
+          _type: 'unknown.Unknown',
+          _args: []
+        },
+      ])
+    ).toThrow('telepath encountered unknown object type unknown.Unknown');
+  });
 });
