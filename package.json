@@ -1,6 +1,6 @@
 {
   "name": "telepath-unpack",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Unpack values that have been packed with telepath",
   "main": "lib/index.js",
   "scripts": {
