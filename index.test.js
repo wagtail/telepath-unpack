@@ -21,6 +21,15 @@ class Album {
 
 telepath.register('music.Album', Album);
 
+class Band {
+  constructor(name, members) {
+    this.name = name;
+    this.members = members || [];
+  }
+}
+
+telepath.register('music.Band', Band);
+
 describe('Telepath', () => {
   it('can unpack objects', () => {
     const beyonce = telepath.unpack({ _type: 'music.Artist', _args: ['Beyoncé'] });
@@ -189,6 +198,97 @@ describe('Telepath', () => {
     expect(discography[0].artists[0].name).toBe('Beyoncé');
     expect(discography[1].title).toBe('Beyoncé');
     expect(discography[1].artists[0].name).toBe('Beyoncé');
+  });
+
+  it('can unpack a self-referencing object', () => {
+    const ouroboros = telepath.unpack({
+      _type: 'music.Band',
+      _id: 0,
+      _args: ['Ouroboros', [{ _ref: 0 }]],
+    });
+    expect(ouroboros).toBeInstanceOf(Band);
+    expect(ouroboros.name).toBe('Ouroboros');
+    expect(ouroboros.members[0]).toBe(ouroboros);
+  });
+
+  it('can unpack mutually referencing objects', () => {
+    const theBeatles = telepath.unpack({
+      _type: 'music.Band',
+      _id: 0,
+      _args: ['The Beatles', [{
+        _type: 'music.Band',
+        _args: ['The Rolling Stones', [{ _ref: 0 }]],
+      }]],
+    });
+    expect(theBeatles).toBeInstanceOf(Band);
+    expect(theBeatles.name).toBe('The Beatles');
+    expect(theBeatles.members[0].name).toBe('The Rolling Stones');
+    expect(theBeatles.members[0].members[0]).toBe(theBeatles);
+  });
+
+  it('can unpack a deep cycle', () => {
+    const theBeatles = telepath.unpack({
+      _type: 'music.Band',
+      _id: 0,
+      _args: ['The Beatles', [{
+        _type: 'music.Band',
+        _args: ['The Rolling Stones', [{
+          _type: 'music.Band',
+          _args: ['Led Zeppelin', [{ _ref: 0 }]],
+        }]],
+      }]],
+    });
+    expect(theBeatles.name).toBe('The Beatles');
+    expect(theBeatles.members[0].name).toBe('The Rolling Stones');
+    expect(theBeatles.members[0].members[0].name).toBe('Led Zeppelin');
+    expect(theBeatles.members[0].members[0].members[0]).toBe(theBeatles);
+  });
+
+  it('can unpack two independent cycles', () => {
+    const [theBeatles, pinkFloyd] = telepath.unpack([
+      {
+        _type: 'music.Band',
+        _id: 0,
+        _args: ['The Beatles', [{
+          _type: 'music.Band',
+          _args: ['The Rolling Stones', [{ _ref: 0 }]],
+        }]],
+      },
+      {
+        _type: 'music.Band',
+        _id: 1,
+        _args: ['Pink Floyd', [{ _ref: 1 }]],
+      },
+    ]);
+    expect(theBeatles.members[0].members[0]).toBe(theBeatles);
+    expect(pinkFloyd.members[0]).toBe(pinkFloyd);
+  });
+
+  it('can unpack a cyclic node also referenced outside the cycle', () => {
+    const [theBeatles, ref] = telepath.unpack([
+      {
+        _type: 'music.Band',
+        _id: 0,
+        _args: ['The Beatles', [{
+          _type: 'music.Band',
+          _args: ['The Rolling Stones', [{ _ref: 0 }]],
+        }]],
+      },
+      { _ref: 0 },
+    ]);
+    expect(ref).toBe(theBeatles);
+    expect(theBeatles.members[0].members[0]).toBe(theBeatles);
+  });
+
+  it('can unpack a self-referencing list', () => {
+    const lst = telepath.unpack({ _list: [{ _ref: 0 }], _id: 0 });
+    expect(Array.isArray(lst)).toBe(true);
+    expect(lst[0]).toBe(lst);
+  });
+
+  it('can unpack a self-referencing dict', () => {
+    const d = telepath.unpack({ _dict: { self: { _ref: 0 } }, _id: 0 });
+    expect(d.self).toBe(d);
   });
 
   it('fails to unpack unknown type', () => {

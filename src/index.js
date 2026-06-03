@@ -100,11 +100,15 @@ class Telepath {
     } else if ('_val' in objData) {
       result = objData['_val'];
     } else if ('_list' in objData) {
-      result = objData['_list'].map(
-        item => this.unpackWithRefs(item, packedValuesById, valuesById)
-      );
+      /* Create the array before unpacking items so that any back-reference
+       * resolved during unpacking finds it immediately, closing the cycle. */
+      result = [];
+      if ('_id' in objData) valuesById[objData['_id']] = result;
+      result.push(...objData['_list'].map(item => this.unpackWithRefs(item, packedValuesById, valuesById)));
     } else if ('_dict' in objData) {
+      /* Create the dict before unpacking values for the same reason. */
       result = {};
+      if ('_id' in objData) valuesById[objData['_id']] = result;
       for (const [key, val] of Object.entries(objData['_dict'])) {
         result[key] = this.unpackWithRefs(val, packedValuesById, valuesById);
       }
@@ -115,9 +119,16 @@ class Telepath {
       if (typeof constructor !== 'function') {
         throw new Error(`telepath encountered unknown object type ${constructorId}`);
       }
-      /* unpack arguments recursively */
-      const args = objData['_args'].map(arg => this.unpackWithRefs(arg, packedValuesById, valuesById));
-      result = new constructor(...args);
+      if ('_id' in objData) {
+        /* Install a placeholder before unpacking args so that any back-reference
+         * resolved during arg unpacking finds it immediately, closing the cycle. */
+        const placeholder = Object.create(constructor.prototype);
+        valuesById[objData['_id']] = placeholder;
+        const args = objData['_args'].map(arg => this.unpackWithRefs(arg, packedValuesById, valuesById));
+        Object.assign(placeholder, new constructor(...args));
+        return placeholder;
+      }
+      result = new constructor(...objData['_args'].map(arg => this.unpackWithRefs(arg, packedValuesById, valuesById)));
     } else if ('_id' in objData) {
       throw new Error('telepath encountered object with _id but no type specified');
     } else {
